@@ -6,7 +6,7 @@ function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Хук для навигации
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +26,7 @@ function LoginPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})); // Защита от пустого JSON
+        const errorData = await response.json().catch(() => ({}));
         console.log("Ошибка от сервера:", errorData);
 
         if (errorData.detail) {
@@ -42,13 +42,12 @@ function LoginPage() {
       const data = await response.json();
       console.log("Успешный вход:", data);
 
-      // Сохранение только токена в localStorage
+      // Сохранение токена в localStorage
       if (data.access_token) {
         localStorage.setItem("authToken", data.access_token);
         console.log("Токен сохранён:", data.access_token);
 
-        // Перенаправление на страницу после успешного входа
-        navigate("/"); // Здесь можно указать путь к странице после входа
+        navigate("/");
       }
     } catch (err) {
       console.error("Ошибка запроса:", err);

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Logo from "/speeksu.png";
-import { NavLink, useNavigate } from "react-router-dom"; // Импортируем useNavigate
+import { NavLink, useNavigate } from "react-router-dom";
 
 function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Инициализация useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +27,7 @@ function RegisterPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})); // Защита от пустого JSON
+        const errorData = await response.json().catch(() => ({}));
         console.log("Ошибка от сервера:", errorData);
 
         if (errorData.detail) {
@@ -48,8 +48,7 @@ function RegisterPage() {
         localStorage.setItem("userUUID", data.uuid);
         console.log("UUID сохранён:", data.uuid);
 
-        // Перенаправление на страницу авторизации
-        navigate("/auth/login"); // Используем navigate вместо Navigate
+        navigate("/auth/login");
       }
     } catch (err) {
       console.error("Ошибка запроса:", err);
