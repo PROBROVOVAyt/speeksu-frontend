@@ -8,15 +8,13 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://api.example.com", // для HTTP-запросов
+        target: "http://api.ccail.ru",
+        // target: "http://127.0.0.1:8000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, "")
-      },
-      "/ws": {
-        target: "wss://api.example.com", // для WebSocket-соединений
-        changeOrigin: true,
-        ws: true,
-        rewrite: (path) => path.replace(/^\/ws/, "")
+        rewrite: (path) => {
+          console.log("Rewriting path:", path); // Логируем путь
+          return path.replace(/^\/api/, "");
+        }
       }
     }
   }
