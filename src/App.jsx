@@ -9,7 +9,10 @@ function App() {
         <img src={Logo} className="size-64" alt="Logo" />
       </div>
       <h1 className="text-8xl font-bold text-white">Speeksu</h1>
-      <NavLink className="text-right text-white text-base" to="/auth">
+      <NavLink
+        className="bg-slate-800 transition-all hover:scale-105 text-white w-64 mt-8 py-4 text-center font-semibold text-xl rounded-lg my-2"
+        to="/auth"
+      >
         Авторизация
       </NavLink>
     </div>
