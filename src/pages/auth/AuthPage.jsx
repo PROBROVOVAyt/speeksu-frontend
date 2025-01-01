@@ -22,7 +22,12 @@ function AuthPage() {
         >
           Регистрация
         </NavLink>
-        <p className="text-center text-white text-lg font-medium">или</p>
+        <div class="inline-flex items-center justify-center w-full">
+          <hr class="w-5/6 h-[2px] my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+          <span class="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900">
+            или
+          </span>
+        </div>
         <a
           href=""
           className="bg-[#FC3F1D] transition-all hover:scale-105 text-white w-full py-4 text-center font-semibold text-xl rounded-lg my-2 cursor-pointer"
