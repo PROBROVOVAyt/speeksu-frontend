@@ -8,12 +8,19 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://api.ccail.ru",
-        // target: "http://127.0.0.1:8000",
+        target: "https://api.ccail.ru",
         changeOrigin: true,
         rewrite: (path) => {
           console.log("Rewriting path:", path); // Логируем путь
           return path.replace(/^\/api/, "");
+        },
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            console.log("Proxying request:", proxyReq.path);
+          });
+          proxy.on("proxyRes", (proxyRes) => {
+            console.log("Received response with status:", proxyRes.statusCode);
+          });
         }
       }
     }

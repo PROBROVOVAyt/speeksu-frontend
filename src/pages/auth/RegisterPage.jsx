@@ -17,17 +17,23 @@ function RegisterPage() {
       return;
     }
 
+    const requestData = { username, email, password };
+    console.log("Отправляем на сервер:", requestData);
+
     try {
       const response = await fetch("/api/user/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, email, password })
+        body: JSON.stringify(requestData)
       });
 
+      const responseText = await response.text();
+      console.log("Ответ сервера (текст):", responseText);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = JSON.parse(responseText);
         console.log("Ошибка от сервера:", errorData);
 
         if (errorData.detail) {
@@ -40,10 +46,9 @@ function RegisterPage() {
         return;
       }
 
-      const data = await response.json();
+      const data = JSON.parse(responseText);
       console.log("Успешная регистрация:", data);
 
-      // Сохранение UUID в localStorage
       if (data.uuid) {
         localStorage.setItem("userUUID", data.uuid);
         console.log("UUID сохранён:", data.uuid);
@@ -68,7 +73,9 @@ function RegisterPage() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Введите логин, например: main_PROBROVOVA"
+          placeholder="Введите логин"
+          name="login"
+          id="login"
           required
         />
         <input
@@ -77,6 +84,8 @@ function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Введите email"
+          name="email"
+          id="email"
           required
         />
         <input
@@ -85,6 +94,8 @@ function RegisterPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Введите пароль"
+          name="password"
+          id="password"
           required
         />
         {error && (

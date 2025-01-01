@@ -2,7 +2,7 @@
 
 speeksu-frontend - Это FrontEnd часть сайта Speek.su
 
-## установка зависемостей
+## установка зависимостей
 
 ```bash
 npm i
