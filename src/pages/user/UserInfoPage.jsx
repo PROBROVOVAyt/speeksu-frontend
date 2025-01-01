@@ -94,7 +94,7 @@ function UserInfoPage() {
     <div className="bg-slate-900 h-screen flex justify-center items-center flex-col text-white">
       <div className="flex items-center gap-4">
         <img
-          className="w-16 h-16 rounded-full"
+          className="size-16 rounded-full"
           src={`https://api.ccail.ru/user/avatar/${userData.username}`}
           alt=""
         />
