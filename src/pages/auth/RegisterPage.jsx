@@ -24,29 +24,24 @@ function RegisterPage() {
       const response = await fetch("/api/user/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(requestData),
       });
 
-      const responseText = await response.text();
-      console.log("Ответ сервера (текст):", responseText);
-
       if (!response.ok) {
-        const errorData = JSON.parse(responseText);
+        const errorData = await response.json().catch(() => ({}));
         console.log("Ошибка от сервера:", errorData);
 
-        if (errorData.detail) {
-          setError(
-            `Ошибка: ${errorData.detail.map((err) => err.msg).join(", ")}`
-          );
+        if (response.status === 400) {
+          setError("Имя пользователя или email уже заняты.");
         } else {
           setError("Ошибка регистрации");
         }
         return;
       }
 
-      const data = JSON.parse(responseText);
+      const data = await response.json();
       console.log("Успешная регистрация:", data);
 
       if (data.uuid) {

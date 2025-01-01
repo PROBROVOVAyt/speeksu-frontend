@@ -29,10 +29,11 @@ function LoginPage() {
         const errorData = await response.json().catch(() => ({}));
         console.log("Ошибка от сервера:", errorData);
 
-        if (errorData.detail) {
-          setError(
-            `Ошибка: ${errorData.detail.map((err) => err.msg).join(", ")}`
-          );
+        if (
+          response.status === 401 &&
+          errorData.detail === "Invalid credentials"
+        ) {
+          setError("Неверное имя пользователя или пароль.");
         } else {
           setError("Ошибка авторизации");
         }
