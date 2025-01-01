@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig({
-  // base: "/",
+  base: "/",
   plugins: [react()],
   server: {
     proxy: {
@@ -11,7 +11,7 @@ export default defineConfig({
         target: "https://api.ccail.ru",
         changeOrigin: true,
         rewrite: (path) => {
-          console.log("Rewriting path:", path); // Логируем путь
+          console.log("Rewriting path:", path);
           return path.replace(/^\/api/, "");
         },
         configure: (proxy) => {
@@ -20,6 +20,19 @@ export default defineConfig({
           });
           proxy.on("proxyRes", (proxyRes) => {
             console.log("Received response with status:", proxyRes.statusCode);
+          });
+        }
+      },
+      "/ws": {
+        target: "wss://api.ccail.ru",
+        ws: true,
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("open", () => {
+            console.log("WebSocket connection opened");
+          });
+          proxy.on("close", () => {
+            console.log("WebSocket connection closed");
           });
         }
       }
