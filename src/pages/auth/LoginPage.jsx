@@ -47,7 +47,7 @@ function LoginPage() {
         localStorage.setItem("authToken", data.access_token);
         console.log("Токен сохранён:", data.access_token);
 
-        navigate("/");
+        navigate("/user/info/");
       }
     } catch (err) {
       console.error("Ошибка запроса:", err);
@@ -67,7 +67,7 @@ function LoginPage() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Введите логин"
+          placeholder="Введите никнейм"
         />
         <input
           className="bg-slate-800 text-white w-full py-4 px-2 rounded-lg my-2"

@@ -7,6 +7,8 @@ import AuthPage from "./pages/auth/AuthPage.jsx";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import RegisterPage from "./pages/auth/RegisterPage.jsx";
 import RecoveryPage from "./pages/auth/RecoveryPage.jsx";
+import UserInfoPage from "./pages/user/UserInfoPage.jsx";
+import UserSettingsPage from "./pages/user/UserSettingsPage.jsx";
 
 const root = document.getElementById("root");
 
@@ -18,6 +20,8 @@ ReactDOM.createRoot(root).render(
       <Route path="/auth/reg/" element={<RegisterPage />} />
       <Route path="/auth/login/" element={<LoginPage />} />
       <Route path="/auth/recovery/" element={<RecoveryPage />} />
+      <Route path="/user/info/" element={<UserInfoPage />} />
+      <Route path="/user/settings/" element={<UserSettingsPage />} />
     </Routes>
   </BrowserRouter>
 );

@@ -73,7 +73,7 @@ function RegisterPage() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Введите логин"
+          placeholder="Введите никнейм"
           name="login"
           id="login"
           required
