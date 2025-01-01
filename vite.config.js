@@ -6,6 +6,7 @@ export default defineConfig({
   base: "/",
   plugins: [react()],
   server: {
+    port: 8124,
     proxy: {
       "/api": {
         target: "https://api.ccail.ru",
