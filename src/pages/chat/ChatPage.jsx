@@ -1,75 +1,73 @@
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
+import io from "socket.io-client";
 
 function ChatPage() {
   const { channelId } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [userToAdd, setUserToAdd] = useState("");
+  const [socket, setSocket] = useState(null);
+  const token = localStorage.getItem("authToken");
+  console.log("token: " + token);
 
   useEffect(() => {
-    // Fetch messages from the server
-    const fetchMessages = async () => {
-      const token = localStorage.getItem("authToken");
-      try {
-        const response = await fetch(`/api/ch/history/${channelId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setMessages(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch messages:", error);
+    const newSocket = io(`/api/ch/${channelId}/ws`, {
+      auth: {
+        token: `Bearer ${token}`
       }
-    };
-    fetchMessages();
-  }, [channelId]);
+    });
 
-  const handleSendMessage = async (e) => {
+    setSocket(newSocket); // Сохраняем сокет в состоянии
+
+    newSocket.on("connect", () => {
+      console.log("WebSocket connection established.");
+    });
+
+    newSocket.on("message", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    newSocket.on("error", (error) => {
+      console.error("WebSocket Error: ", error);
+    });
+
+    return () => {
+      newSocket.close();
+    };
+  }, [channelId, token]);
+
+  const handleSendMessage = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("authToken");
-    try {
-      const response = await fetch(`/api/ch/send`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          channel_id: channelId,
-          message: newMessage,
-        }),
-      });
-      if (response.ok) {
-        setMessages((prev) => [
-          ...prev,
-          { user: "You", msg: newMessage, time: "Just now" },
-        ]);
-        setNewMessage("");
-      }
-    } catch (error) {
-      console.error("Failed to send message:", error);
+    if (socket && socket.connected) {
+      // Проверяем, что сокет подключен
+      const message = {
+        user: "You",
+        msg: newMessage,
+        time: new Date().toLocaleTimeString()
+      };
+      socket.emit("message", JSON.stringify(message)); // Используем emit для отправки сообщений
+      setMessages((prev) => [...prev, message]);
+      setNewMessage("");
+    } else {
+      console.error("WebSocket is not open.");
     }
   };
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("authToken");
     try {
       const response = await fetch(`/api/ch/adduser`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           channel_id: channelId,
-          user_uuid: userToAdd,
-        }),
+          user_uuid: userToAdd
+        })
       });
       if (response.ok) {
         alert("User added successfully!");
@@ -86,51 +84,55 @@ function ChatPage() {
     <div className="bg-slate-900 h-screen flex justify-center items-center flex-col text-white">
       <div className="max-w-[1200px] w-full">
         <div className="px-2">
-          {messages.map((message, index) => (
-            <div key={index} className="flex items-start gap-2.5 my-2">
-              <img
-                className="w-8 h-8 rounded-full"
-                src={`https://api.ccail.ru/user/avatar/${message.user}`}
-                alt={`${message.user} avatar`}
-              />
-              <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {message.user}
-                  </span>
-                  <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                    {message.time}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-900 dark:text-white">
-                  <ReactMarkdown
-                    components={{
-                      h1: ({ node, ...props }) => (
-                        <p
-                          className="text-4xl font-bold dark:text-white"
-                          {...props}
-                        />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <p
-                          className="text-3xl font-bold dark:text-white"
-                          {...props}
-                        />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <p
-                          className="text-2xl font-bold dark:text-white"
-                          {...props}
-                        />
-                      ),
-                    }}
-                  >
-                    {message.msg}
-                  </ReactMarkdown>
+          {messages.length > 0 ? (
+            messages.map((message, index) => (
+              <div key={index} className="flex items-start gap-2.5 my-2">
+                <img
+                  className="w-8 h-8 rounded-full"
+                  src={`https://api.ccail.ru/user/avatar/${message.user}`}
+                  alt={`${message.user} avatar`}
+                />
+                <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                  <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {message.user}
+                    </span>
+                    <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                      {message.time}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-900 dark:text-white">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ node, ...props }) => (
+                          <p
+                            className="text-4xl font-bold dark:text-white"
+                            {...props}
+                          />
+                        ),
+                        h2: ({ node, ...props }) => (
+                          <p
+                            className="text-3xl font-bold dark:text-white"
+                            {...props}
+                          />
+                        ),
+                        h3: ({ node, ...props }) => (
+                          <p
+                            className="text-2xl font-bold dark:text-white"
+                            {...props}
+                          />
+                        )
+                      }}
+                    >
+                      {message.msg}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div>No messages available.</div>
+          )}
         </div>
         <form onSubmit={handleSendMessage}>
           <div className="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">

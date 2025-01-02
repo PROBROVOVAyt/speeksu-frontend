@@ -4,32 +4,69 @@ import { Link } from "react-router-dom";
 function ChatListPage() {
   const [chats, setChats] = useState([]);
   const [newChatName, setNewChatName] = useState("");
-  const [userToAdd, setUserToAdd] = useState("");
-
+  const [userToAdd, setUserToAdd] = useState(""); // для добавления пользователей по UUID
+  const [userUuid, setUserUuid] = useState(""); // для хранения собственного UUID
+  const token = localStorage.getItem("authToken");
+  console.log("token: " + token);
   useEffect(() => {
-    // Fetch chat list from the server
-    const fetchChats = async () => {
-      const token = localStorage.getItem("authToken");
+    // Получение информации о текущем пользователе
+    const fetchUserData = async () => {
       try {
-        const response = await fetch("/api/ch/list", {
+        const response = await fetch("https://api.ccail.ru/user/me", {
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         if (response.ok) {
           const data = await response.json();
-          setChats(data);
+          const username = data.username;
+
+          // Теперь получаем UUID по username
+          const uuidResponse = await fetch(
+            `https://api.ccail.ru/user/get/uuid/${username}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+          if (uuidResponse.ok) {
+            const uuidData = await uuidResponse.json();
+            setUserUuid(uuidData.uuid); // Сохраняем UUID пользователя
+          }
         }
       } catch (error) {
-        console.error("Failed to fetch chats:", error);
+        console.error("Failed to fetch user data:", error);
       }
     };
-    fetchChats();
+    fetchUserData();
+
+    // // Fetch chat list from the server
+    // const fetchChats = async () => {
+    //   const token = localStorage.getItem("authToken");
+    //   try {
+    //     const response = await fetch("https://api.ccail.ru/user/ch/list", {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`
+    //       }
+    //     });
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       setChats(data);
+    //     }
+    //   } catch (error) {
+    //     console.error("Failed to fetch chats:", error);
+    //   }
+    // };
+    // fetchChats();
   }, []);
 
   const handleCreateChat = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
+
     const chatData = {
       isDm: true, // устанавливаем флаг для личного чата
       name: newChatName, // имя чата
@@ -48,6 +85,10 @@ function ChatListPage() {
       if (response.ok) {
         const chat = await response.json();
         setChats((prev) => [...prev, chat]);
+
+        // Автоматически добавляем себя в чат, используя свой UUID
+        await handleAddUserToChat(chat.id, userUuid);
+
         setNewChatName(""); // очистка поля ввода после успешного создания чата
       }
     } catch (error) {
@@ -55,7 +96,7 @@ function ChatListPage() {
     }
   };
 
-  const handleAddUserToChat = async (chatId) => {
+  const handleAddUserToChat = async (chatId, userUuid) => {
     const token = localStorage.getItem("authToken");
     try {
       const response = await fetch("/api/ch/adduser", {
@@ -64,16 +105,50 @@ function ChatListPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ channel_id: chatId, user_uuid: userToAdd })
+        body: JSON.stringify({ channel_id: chatId, user_uuid: userUuid })
       });
       if (response.ok) {
-        alert("User added successfully!");
-        setUserToAdd("");
+        alert("You were added to the chat!");
       } else {
         alert("Failed to add user");
       }
     } catch (error) {
       console.error("Error adding user:", error);
+    }
+  };
+
+  const handleAddUserByUuid = async (chatId) => {
+    const token = localStorage.getItem("authToken");
+
+    // Проверяем, есть ли UUID
+    if (!userToAdd || !chatId) {
+      alert("Please enter a valid UUID and select a chat.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/ch/adduser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` // Убедитесь, что authToken правильный
+        },
+        body: JSON.stringify({
+          channel_id: chatId, // Убедитесь, что chatId правильно передается
+          user_uuid: userToAdd // Убедитесь, что userToAdd — это UUID
+        })
+      });
+
+      if (response.ok) {
+        alert("User added successfully!");
+        setUserToAdd(""); // Очистить поле ввода
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to add user: ${errorData.message || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
+      alert("An error occurred while adding the user.");
     }
   };
 
@@ -105,7 +180,7 @@ function ChatListPage() {
                 />
                 <button
                   className="px-4 py-2 text-sm font-semibold text-green-600 bg-green-100 rounded-lg hover:bg-green-200 dark:bg-green-800 dark:text-green-400"
-                  onClick={() => handleAddUserToChat(chat.id)}
+                  onClick={() => handleAddUserByUuid(chat.id)}
                 >
                   Add User
                 </button>
