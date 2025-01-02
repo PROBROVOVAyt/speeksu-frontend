@@ -9,6 +9,8 @@ import RegisterPage from "./pages/auth/RegisterPage.jsx";
 import RecoveryPage from "./pages/auth/RecoveryPage.jsx";
 import UserInfoPage from "./pages/user/UserInfoPage.jsx";
 import UserSettingsPage from "./pages/user/UserSettingsPage.jsx";
+import ChatPage from "./pages/chat/ChatPage.jsx";
+import ChatListPage from "./pages/chat/ChatListPage.jsx"
 
 const root = document.getElementById("root");
 
@@ -22,6 +24,9 @@ ReactDOM.createRoot(root).render(
       <Route path="/auth/recovery/" element={<RecoveryPage />} />
       <Route path="/user/info/" element={<UserInfoPage />} />
       <Route path="/user/settings/" element={<UserSettingsPage />} />
+      <Route path="/chat/:channelId/" element={<ChatPage />} />
+      <Route path="/chat/" element={<ChatListPage />} />
+
     </Routes>
   </BrowserRouter>
 );

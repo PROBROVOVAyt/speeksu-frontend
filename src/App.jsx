@@ -10,10 +10,16 @@ function App() {
       </div>
       <h1 className="text-8xl font-bold text-white">Speeksu</h1>
       <NavLink
-        className="bg-slate-800 transition-all hover:scale-105 text-white w-64 mt-8 py-4 text-center font-semibold text-xl rounded-lg my-2"
-        to="/auth"
+        className="bg-slate-800 transition-all hover:scale-105 text-white w-64 mt-8 py-4 text-center font-semibold text-xl rounded-lg"
+        to="/auth/"
       >
         Авторизация
+      </NavLink>
+      <NavLink
+        className="bg-slate-800 transition-all hover:scale-105 text-white w-64 mt-2 py-4 text-center font-semibold text-xl rounded-lg"
+        to="/chat/"
+      >
+        Чаты
       </NavLink>
     </div>
   );

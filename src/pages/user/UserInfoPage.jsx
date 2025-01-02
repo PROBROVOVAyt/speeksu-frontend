@@ -110,6 +110,12 @@ function UserInfoPage() {
       >
         Выйти
       </button>
+      <NavLink
+        className="bg-slate-800 transition-all hover:scale-105 text-white w-64 mt-2 py-4 text-center font-semibold text-xl rounded-lg"
+        to="/chat/"
+      >
+        Чаты
+      </NavLink>
     </div>
   );
 }
